@@ -2,7 +2,12 @@ package org.example;
 
 public class DefaultCommand {
     public void execute(String input) {
-        String result = Parser.parseWord(input);
-        System.out.println(result);
+        if (input.matches("[а-яА-ЯёЁ]+")){
+            String result = Parser.parseWord(input);
+            System.out.println(result);
+        }
+        else{
+            System.out.println("Введите слово, написанное русской кириллицей, или команду");
+        }
     }
 }
