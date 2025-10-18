@@ -8,7 +8,7 @@ public class Parser {
     public static String parseWord(String word) {
         try { // начнем блок try, чтобы при ошибке программа не сломалась и перешла в catch
             String encword = URLEncoder.encode(word, "UTF-8"); // кодируем кириллицу в код, который понимает URL
-            String url = "https://gramota.ru/poisk?query=" + encword + "&mode=slovari&dicts[]=9"; // формируем запрос
+            String url = String.format("https://gramota.ru/poisk?query=%s&mode=slovari&dicts[]=9", encword);
             String dict = "Современный словарь иностранных слов"; // название словаря
 
             Document doc = Jsoup.connect(url)
@@ -47,11 +47,11 @@ public class Parser {
                 return result;
 
             } else {
-                return "Слово '" + word + "' не найдено в словаре иностранных слов";
+                return String.format("Слово '%s' не найдено в словаре иностранных слов", word);
             }
 
         } catch (Exception e) {
-            return "Ошибка: " + e.getMessage();
+            return String.format("Ошибка: %s", e.getMessage());
         }
     }
 }
