@@ -6,10 +6,10 @@ public class Bot {
     private Scanner scanner = new Scanner(System.in);
 
     public void start() {
-        System.out.println("Вас приветствует бот-лингвист!\nДля получения справки введите команду \\help");
+        System.out.println("Вас приветствует бот-лингвист!\nДля получения справки введите команду /help");
 
         while (true) {
-            System.out.print("\nПожалуйста, введите слово или команду: ");
+            System.out.print("\nВведите слово или команду: ");
             if (!(new CommandProcessor().processCommand(scanner.nextLine()))) {
                 break;
             }
