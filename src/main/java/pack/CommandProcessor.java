@@ -1,4 +1,4 @@
-package org.example;
+package pack;
 
 public class CommandProcessor {
     private HelpCommand helpCommand = new HelpCommand();

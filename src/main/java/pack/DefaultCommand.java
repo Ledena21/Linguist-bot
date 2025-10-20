@@ -1,4 +1,4 @@
-package org.example;
+package pack;
 
 public class DefaultCommand {
     public void execute(String input) {
