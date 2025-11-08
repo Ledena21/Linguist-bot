@@ -1,7 +1,7 @@
 package pack;
 
 public class ExitCommand {
-    public void execute() {
-        System.out.println("Спасибо за использование бота! До свидания!");
+    public String execute() {
+        return "Спасибо за использование бота! До свидания!";
     }
 }

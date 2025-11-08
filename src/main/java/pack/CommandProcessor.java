@@ -1,21 +1,22 @@
 package pack;
 
 public class CommandProcessor {
-    private HelpCommand helpCommand = new HelpCommand();
-    private ExitCommand exitCommand = new ExitCommand();
-    private DefaultCommand defaultCommand = new DefaultCommand();
 
-    public boolean processCommand(String command) {
-        switch (command) {
+    public String processCommand(String input) {
+        HelpCommand helpCommand = new HelpCommand();
+        StartCommand startCommand = new StartCommand();
+        ExitCommand exitCommand = new ExitCommand();
+        DefaultCommand defaultCommand = new DefaultCommand();
+
+        switch (input) {
             case "/help":
-                helpCommand.execute();
-                return true;
+                return helpCommand.execute();
+            case "/start":
+                return startCommand.execute();
             case "/exit":
-                exitCommand.execute();
-                return false;
+                return exitCommand.execute();
             default:
-                defaultCommand.execute(command.toLowerCase());
-                return true;
+                return defaultCommand.execute(input);
         }
     }
 }
