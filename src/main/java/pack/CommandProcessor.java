@@ -2,19 +2,17 @@ package pack;
 
 public class CommandProcessor {
 
-    private final HelpCommand helpCommand;
-    private final StartCommand startCommand;
-    private final ExitCommand exitCommand;
-    private final DefaultCommand defaultCommand;
-
-    public CommandProcessor(){
-        helpCommand = new HelpCommand();
-        startCommand = new StartCommand();
-        exitCommand = new ExitCommand();
-        defaultCommand = new DefaultCommand();
-    }
+    private final HelpCommand helpCommand = new HelpCommand();
+    private final StartCommand startCommand = new StartCommand();
+    private final ExitCommand exitCommand = new ExitCommand();
+    private final DefaultCommand defaultCommand = new DefaultCommand();
+    private final SynonymCommand synonymCommand = new SynonymCommand();
 
     public String processCommand(String input) {
+        if (input.startsWith("/syn_")) {
+            String word = input.substring("/syn_".length());
+            return synonymCommand.execute(word);
+        }
 
         switch (input) {
             case "/help":
@@ -24,7 +22,11 @@ public class CommandProcessor {
             case "/exit":
                 return exitCommand.execute();
             default:
-                return defaultCommand.execute(input);
+                if (input.matches("[а-яА-ЯёЁ]+")) {
+                    return defaultCommand.execute(input);
+                } else {
+                    return "Введите слово кириллицей или команду (/help)";
+                }
         }
     }
 }

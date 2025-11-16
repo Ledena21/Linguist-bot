@@ -3,52 +3,61 @@ package pack;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 public class Parser {
-    public static String parseWord(String word) {
-        try { // начнем блок try, чтобы при ошибке программа не сломалась и перешла в catch
-            String encword = URLEncoder.encode(word, "UTF-8"); // кодируем кириллицу в код, который понимает URL
-            String url = String.format("https://gramota.ru/poisk?query=%s&mode=slovari&dicts[]=9", encword);
-            String dict = "Современный словарь иностранных слов"; // название словаря
+
+    public static String parseWord(String word, String dict, String link) {
+        try {
+            word = word.replace('ё', 'е').replace('Ё', 'Е');
+            String encodedWord = URLEncoder.encode(word, StandardCharsets.UTF_8);
+            String url = String.format(link, encodedWord);
 
             Document doc = Jsoup.connect(url)
-                    .userAgent("Mozilla/5.0")
+                    .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
                     .timeout(10000)
                     .get();
 
-            String page = doc.text(); // извлекли весь текст из HTML-страницы
+            String page = doc.text();
 
-            int dictInd = page.indexOf(dict);
-            // находим индекс заголовка с исходным словарем
-            if (dictInd == -1) { // если индекс -1, значит, не нашли
-                return "Этого слова нет в словаре иностранных слов";
+            int dictIndex = page.indexOf(dict);
+            if (dictIndex == -1) {
+                return String.format("Слово «%s» не найдено в словаре «%s».", word, dict);
             }
 
-            // берем текст после заголовка словаря, прибавляем его длину, чтобы он сам был не включительно
-            String afterdict = page.substring(dictInd + dict.length());
+            String afterDict = page.substring(dictIndex + dict.length());
 
-            if (afterdict.contains(word)) { // если эта строка содержит наше слово
-                int wordIndex = afterdict.indexOf(word); // мы запоминаем его индекс
-                String result = afterdict.substring(wordIndex); // и берем текст начиная с этого слова
+            String capitalWord = word.substring(0, 1).toUpperCase() + word.substring(1).toLowerCase();
 
-                // все эти слова ниже обычно значат конец определения, найдем их, чтобы найти конец
-                String[] endMarkers = {"Словари", "Существительное", "Метасловарь"};
-
-                int end = result.length();
-
-                for (String marker : endMarkers) { // берем слово, которое является маркером конца
-                    int markerIndex = result.indexOf(marker); // ищем его индекс
-                    if (markerIndex != -1 && markerIndex < end) { // если слово найдено и его индекс меньше, чем индекс конца всего текста
-                        end = markerIndex; // запоминаем индекс
-                    }
+            int wordIndex = afterDict.indexOf(capitalWord);
+            if (wordIndex == -1) {
+                wordIndex = afterDict.toLowerCase().indexOf(word.toLowerCase());
+                if (wordIndex == -1) {
+                    return String.format("Слово «%s» не найдено в словаре «%s».", word, dict);
                 }
-
-                result = result.substring(dict.length() + word.length() + 2, end).trim(); // обрезали строку до конца
-                return result;
-
-            } else {
-                return String.format("Слово '%s' не найдено в словаре иностранных слов", word);
             }
+
+            String result = afterDict.substring(wordIndex);
+
+            String[] endMarkers = {"Словари", "Существительное", "Метасловарь", "Прот.", "См.", "Ср.", "Синонимы:", "Антонимы:", "Сущ.", "Прил.", "Глаг.", "Он в", "Находится", "Используется"};
+
+            int end = result.length();
+            for (String marker : endMarkers) {
+                int idx = result.indexOf(marker);
+                if (idx != -1 && idx < end) {
+                    end = idx;
+                    break;
+                }
+            }
+
+            if (dict.equals("Современный словарь иностранных слов")){
+                result = result.substring(dict.length() + word.length() + 2, end).trim();
+            } else {
+                result = result.substring(0, end).trim();
+            }
+
+
+            return result;
 
         } catch (Exception e) {
             return String.format("Ошибка: %s", e.getMessage());
