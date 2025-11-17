@@ -59,7 +59,7 @@ public class Parser {
             return result;
 
         } catch (Exception e) {
-            System.out.println(String.format("Ошибка: %s", e.getMessage()));
+            //System.out.println(String.format("Ошибка: %s", e.getMessage()));
             return String.format("Слово «%s» не найдено в словаре «%s».", originalword, dict);
         }
     }

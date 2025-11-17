@@ -26,41 +26,41 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
-        if (update.hasMessage() && update.getMessage().hasText()) {
-            String text = update.getMessage().getText();
+        if (update.hasMessage() && update.getMessage().hasText()) { // если есть сообщение и оно текст
+            String text = update.getMessage().getText(); // получим сам текст
 
-            String response = commandProcessor.processCommand(text);
-            SendMessage message = new SendMessage(String.valueOf(update.getMessage().getChatId()), response);
+            String response = commandProcessor.processCommand(text); // отправим его обработчику команд
+            SendMessage message = new SendMessage(String.valueOf(update.getMessage().getChatId()), response); // создаем объект класса, который отправляет сообщение, передаем id чата и текст ответа
 
-            if (text.matches("[а-яА-ЯёЁ]+")) {
-                InlineKeyboardButton button = new InlineKeyboardButton("Найти синонимы");
-                button.setCallbackData("/syn_" + text);
-                InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
-                markup.setKeyboard(Collections.singletonList(Collections.singletonList(button)));
-                message.setReplyMarkup(markup);
+            if (text.matches("[а-яА-ЯёЁ]+")) { // если что-то на кириллице
+                InlineKeyboardButton button = new InlineKeyboardButton("Найти синонимы"); // создаем кнопку с надписью
+                button.setCallbackData(String.format("/syn_%s", text)); // данные обратного вызова /syn + слово
+                InlineKeyboardMarkup markup = new InlineKeyboardMarkup(); // создадим контейнер строк под сообщением
+                markup.setKeyboard(Collections.singletonList(Collections.singletonList(button))); // создаем список из одного элемента
+                message.setReplyMarkup(markup); // разметка кнопки, чтобы она появилась под сообщением
             }
 
             try {
-                execute(message);
+                execute(message); // пытаемся отправить ответ
             } catch (TelegramApiException e) {
                 e.printStackTrace();
             }
         }
-        else if (update.hasCallbackQuery()) {
-            String data = update.getCallbackQuery().getData();
-            String chatId = update.getCallbackQuery().getMessage().getChatId().toString();
+        else if (update.hasCallbackQuery()) { // если кнопка нажата
+            String data = update.getCallbackQuery().getData(); // получаем данные обратного вызова
+            String chatId = update.getCallbackQuery().getMessage().getChatId().toString(); // запоминаем id чата
             try {
-                AnswerCallbackQuery answer = new AnswerCallbackQuery();
-                answer.setCallbackQueryId(update.getCallbackQuery().getId());
-                execute(answer);
+                AnswerCallbackQuery answer = new AnswerCallbackQuery(); // создаем объект ответа
+                answer.setCallbackQueryId(update.getCallbackQuery().getId()); // создаем ответ
+                execute(answer); // пытаемся его выполнить, то есть кнопка перестанет светиться
             } catch (TelegramApiException e) {
                 e.printStackTrace();
             }
-            String response = commandProcessor.processCommand(data);
-            SendMessage message = new SendMessage(chatId, response);
+            String response = commandProcessor.processCommand(data); // передаем данные обработчику команд
+            SendMessage message = new SendMessage(chatId, response); // он формирует сообщение
 
             try {
-                execute(message);
+                execute(message); // пытаемся отправить
             } catch (TelegramApiException e) {
                 e.printStackTrace();
             }
