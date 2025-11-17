@@ -41,6 +41,3 @@ build/
 
 ### Mac OS ###
 .DS_Store
-
-# Ignore config with secrets
-src/main/java/config/BotConfig.java
