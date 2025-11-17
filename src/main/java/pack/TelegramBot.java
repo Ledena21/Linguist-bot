@@ -6,6 +6,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 
 import java.util.Collections;
 
@@ -15,8 +16,6 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     @Override
     public String getBotToken() {
-        // Лучше не из env, если вы используете BotConfig — но оставим как у вас
-        // ИЛИ замените на BotConfig.token
         return System.getenv("BOT_TOKEN");
     }
 
@@ -29,10 +28,9 @@ public class TelegramBot extends TelegramLongPollingBot {
     public void onUpdateReceived(Update update) {
         if (update.hasMessage() && update.getMessage().hasText()) {
             String text = update.getMessage().getText();
-            long chatId = update.getMessage().getChatId();
 
             String response = commandProcessor.processCommand(text);
-            SendMessage message = new SendMessage(String.valueOf(chatId), response);
+            SendMessage message = new SendMessage(String.valueOf(update.getMessage().getChatId()), response);
 
             if (text.matches("[а-яА-ЯёЁ]+")) {
                 InlineKeyboardButton button = new InlineKeyboardButton("Найти синонимы");
@@ -50,10 +48,16 @@ public class TelegramBot extends TelegramLongPollingBot {
         }
         else if (update.hasCallbackQuery()) {
             String data = update.getCallbackQuery().getData();
-            long chatId = update.getCallbackQuery().getMessage().getChatId();
-
+            String chatId = update.getCallbackQuery().getMessage().getChatId().toString();
+            try {
+                AnswerCallbackQuery answer = new AnswerCallbackQuery();
+                answer.setCallbackQueryId(update.getCallbackQuery().getId());
+                execute(answer);
+            } catch (TelegramApiException e) {
+                e.printStackTrace();
+            }
             String response = commandProcessor.processCommand(data);
-            SendMessage message = new SendMessage(String.valueOf(chatId), response);
+            SendMessage message = new SendMessage(chatId, response);
 
             try {
                 execute(message);

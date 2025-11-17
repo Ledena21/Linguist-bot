@@ -8,6 +8,7 @@ import java.nio.charset.StandardCharsets;
 public class Parser {
 
     public static String parseWord(String word, String dict, String link) {
+        String originalword = word;
         try {
             word = word.replace('ё', 'е').replace('Ё', 'Е');
             String encodedWord = URLEncoder.encode(word, StandardCharsets.UTF_8);
@@ -22,7 +23,7 @@ public class Parser {
 
             int dictIndex = page.indexOf(dict);
             if (dictIndex == -1) {
-                return String.format("Слово «%s» не найдено в словаре «%s».", word, dict);
+                return String.format("Слово «%s» не найдено в словаре «%s».", originalword, dict);
             }
 
             String afterDict = page.substring(dictIndex + dict.length());
@@ -33,7 +34,7 @@ public class Parser {
             if (wordIndex == -1) {
                 wordIndex = afterDict.toLowerCase().indexOf(word.toLowerCase());
                 if (wordIndex == -1) {
-                    return String.format("Слово «%s» не найдено в словаре «%s».", word, dict);
+                    return String.format("Слово «%s» не найдено в словаре «%s».", originalword, dict);
                 }
             }
 
@@ -50,17 +51,16 @@ public class Parser {
                 }
             }
 
-            if (dict.equals("Современный словарь иностранных слов")){
-                result = result.substring(dict.length() + word.length() + 2, end).trim();
-            } else {
-                result = result.substring(0, end).trim();
-            }
+            result = result.substring(0, end).trim();
 
+            String WordDict = word.toLowerCase()+" "+dict;
+            result = result.replace(WordDict, "");
 
             return result;
 
         } catch (Exception e) {
-            return String.format("Ошибка: %s", e.getMessage());
+            System.out.println(String.format("Ошибка: %s", e.getMessage()));
+            return String.format("Слово «%s» не найдено в словаре «%s».", originalword, dict);
         }
     }
 }
