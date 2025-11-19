@@ -2,6 +2,6 @@ package pack;
 
 public class HelpCommand {
     public String execute() {
-        return "Я — бот, который выводит определения заимствованных слов.";
+        return "Я бот, который ищет значения и синонимы заимствованных слов в русском языке.";
     }
 }
